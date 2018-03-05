@@ -1,7 +1,13 @@
+var fs = require('fs');
+
 // Listen on a specific host via the HOST environment variable
-var host = process.env.HOST || '0.0.0.0';
+var host = process.env.CORS_HOST || '0.0.0.0';
 // Listen on a specific port via the PORT environment variable
-var port = process.env.PORT || 8080;
+var port = process.env.CORS_PORT_HTTPS || 60443;
+// Use the following Private Key for SSL
+var ssl_key = process.env.CORS_SSL_KEY
+// Use the following Certificate Chain for SSL
+var ssl_cert = process.env.CORS_SSL_CERT
 
 // Grab the blacklist from the command-line so that we can update the blacklist without deploying
 // again. CORS Anywhere is open by design, and this blacklist is not used, except for countering
@@ -23,6 +29,10 @@ var cors_proxy = require('./lib/cors-anywhere');
 cors_proxy.createServer({
   originBlacklist: originBlacklist,
   originWhitelist: originWhitelist,
+  httpsOptions: {
+        key: fs.readFileSync(ssl_key),
+        cert: fs.readFileSync('ssl_cert')
+    },
   requireHeader: ['origin', 'x-requested-with'],
   checkRateLimit: checkRateLimit,
   removeHeaders: [
